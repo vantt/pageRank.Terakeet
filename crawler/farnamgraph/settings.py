@@ -89,4 +89,4 @@ ROBOTSTXT_OBEY = True
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 FEED_FORMAT="jsonlines"
-FEED_URI="file:///ext4Data1/vantt/projects/python/farnamgraph/sitegraph.json"
+FEED_URI="file:///tmp/sitegraph.json"
