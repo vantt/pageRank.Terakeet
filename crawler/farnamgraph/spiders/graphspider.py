@@ -10,7 +10,7 @@ class GraphspiderSpider(CrawlSpider):
     start_urls = ['https://fs.blog/blog']
 
     rules = (
-        Rule(SgmlLinkExtractor(allow=(r'/',), deny=(r'/tag',), deny=(r'/category',)), callback='parse_item', follow=True),
+        Rule(SgmlLinkExtractor(allow=(r'/',), deny=(r'/tag',r'/category',r'/search',)), callback='parse_item', follow=True),
     )
 
     def parse_item(self, response):
