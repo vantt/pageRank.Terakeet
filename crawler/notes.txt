@@ -1,0 +1,33 @@
+#############################
+# JSON Jq
+#############################
+# create pages.csv
+jq -r '[.url, .title] | @csv' sitegraph.json > pages.csv
+
+
+# create links.csv
+jq -r '[.url, .linkedurls[]] | @csv' sitegraph.json
+
+#############################
+# Scrapy
+#############################
+
+# Create Scrapy Project
+$ scrapy startproject farnamgraph
+
+# Create a Spider
+$ scrapy genspider graphspider fs.blog
+
+# Run the Spider
+$ scrapy crawl graphspider
+
+#############################
+# Run Neo4j Docker
+#############################
+
+docker volume create neo4j_data
+
+docker run --name=neo4j -d \
+           --publish=7474:7474 --publish=7687:7687 \
+           --volume=neo4j_data:/data --volume=$(pwd)/plugins:/plugins \
+           --env=NEO4J_dbms_security_procedures_unrestricted=algo.* neo4j

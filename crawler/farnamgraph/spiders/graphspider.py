@@ -10,18 +10,18 @@ class GraphspiderSpider(CrawlSpider):
     start_urls = ['https://fs.blog/blog']
 
     rules = (
-        Rule(SgmlLinkExtractor(allow=(r'/',), deny=(r'/tag',r'/category',r'/search',)), callback='parse_item', follow=True),
+        Rule(SgmlLinkExtractor(allow=(r'/',), deny=(r'/tag',r'/category',r'/search',r'/blog')), callback='parse_item', follow=True),
     )
 
     def parse_item(self, response):
         hxs = HtmlXPathSelector(response)
         i = FarnamgraphItem()
-        i['url'] = response.url        
-        i['title'] = hxs.select('//h1/text()').extract()[0]
+        i['url'] = response.url.strip()
+        i['title'] = hxs.select('//h1/text()').extract()[0].strip()
         llinks=[]
         for anchor in hxs.select('//a[@href]'):
-            href=anchor.select('@href').extract()[0]
+            href=anchor.select('@href').extract()[0].strip()
             if not href.lower().startswith("javascript"):
                 llinks.append(urljoin_rfc(response.url,href))
-        i['linkedurls'] = llinks
+        i['links'] = llinks
         return i

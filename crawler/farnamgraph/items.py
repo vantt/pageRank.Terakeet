@@ -10,4 +10,4 @@ from scrapy.item import Item, Field
 class FarnamgraphItem(Item):
     url=Field()
     title=Field()
-    linkedurls=Field()
+    links=Field()
