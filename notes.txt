@@ -1,0 +1,118 @@
+
+
+
+#############################
+# JSON Jq
+#############################
+# create pages.csv
+jq -r '[.url, .title] | @csv' sitegraph.json > pages.csv
+
+
+# create links.csv
+# step1: create json records with {from:xxx,  to:yyy} (each item in linkedurls , url)
+# step2: filter only items that has from <> to
+# step3: convert json {from, to} to array [from, to]
+# step4: convert to csv
+jq -r '{from: .url, to: .linkedurls[]} | select(.from != .to) | [.from, .to] | @csv' sitegraph.json > page_links.csv
+
+
+#############################
+# Scrapy
+#############################
+
+# Install Scrapy
+$ sudo pip install scrapy
+
+# Create Scrapy Project
+$ mkdir crawler
+$ scrapy startproject farnamgraph
+$ cd farnamgraph
+
+# Create a Spider
+$ scrapy genspider farnamgraph fs.blog
+
+# Run the Spider
+$ scrapy crawl graphspider
+
+#############################
+# Run Neo4j Docker
+#############################
+
+download apoc plugins
+download graph-algorithms plugins
+
+docker volume create neo4j_data
+
+# https://neo4j.com/docs/graph-algorithms/current/introduction/#_installation
+# https://neo4j-contrib.github.io/neo4j-apoc-procedures/#_installation_in_neo4j_server_docker
+docker run --name=neo4j -d \
+           --publish=7474:7474 --publish=7687:7687 \
+           --volume=neo4j_data:/data --volume=$(pwd)/neo4j_plugins:/plugins \
+           --volume=/ext4Data1/vantt/projects/python/fsPageRank/crawler/data:/var/lib/neo4j/import \
+           --env=NEO4J_dbms_security_procedures_unrestricted=algo.*,apoc.* \
+           --env=NEO4J_apoc_export_file_enabled=true \
+           --env=NEO4J_apoc_import_file_enabled=true \
+           --env=NEO4J_apoc_import_file_use__neo4j__config=true \
+           neo4j
+
+# http://localhost:7474/
+
+#############################
+# Load Data Into Neo4j
+#############################
+
+# Delete all Page nodes
+MATCH (p:Page) DETACH DELETE p
+
+# Create CONSTRAINT on Page
+CREATE CONSTRAINT ON (p:Page) ASSERT p.url IS UNIQUE
+
+# Create Page nodes
+LOAD CSV WITH HEADERS FROM "file:///pages.csv" AS row
+MERGE (p:Page {url:row.url})
+ON CREATE SET p.name = row.title
+
+# Create links between Page nodes
+# Dung MATCH thay MERGE de khong tao Page ngoai
+LOAD CSV WITH HEADERS FROM "file:///page_links.csv" AS row
+MATCH (p1: Page {url: row.from}), (p2: Page {url: row.to})
+MERGE (p1)-[:links]->(p2)
+
+#############################
+# Calculate fsPageRank
+#############################
+# https://neo4j.com/docs/graph-algorithms/current/algorithms/page-rank/
+
+# update
+CALL algo.pageRank('Page', 'links', {iterations:20, dampingFactor:0.85, write: true, writeProperty:"rank"})
+
+############################# 
+# Query
+#############################
+# Query
+MATCH (n:Page) 
+RETURN n.name, n.url
+LIMIT 25
+
+# Query
+MATCH (n:Page) 
+RETURN n
+ORDER BY n.rank DESC
+LIMIT 25
+
+MATCH (n:Page) 
+RETURN n.name, n.url, n.rank
+ORDER BY n.rank DESC
+LIMIT 25
+
+# query tat ca page di ra tu mot not
+MATCH (:Page {url: 'https://fs.blog/2018/04/first-principles/'})-[r]-(p:Page)
+RETURN p 
+ORDER BY p.rank DESC
+LIMIT 25
+
+
+############################# 
+# Neo4j Export
+#############################
+MATCH (p1:Page)-[:links]->(p2:Page) RETURN p1.url, p1.name, p1.rank, p2.url
