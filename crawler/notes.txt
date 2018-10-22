@@ -12,11 +12,16 @@ jq -r '[.url, .linkedurls[]] | @csv' sitegraph.json
 # Scrapy
 #############################
 
+# Install Scrapy
+$ sudo pip install scrapy
+
 # Create Scrapy Project
+$ mkdir crawler
 $ scrapy startproject farnamgraph
+$ cd farnamgraph
 
 # Create a Spider
-$ scrapy genspider graphspider fs.blog
+$ scrapy genspider farnamgraph fs.blog
 
 # Run the Spider
 $ scrapy crawl graphspider
