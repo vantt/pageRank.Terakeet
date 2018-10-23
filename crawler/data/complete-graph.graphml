@@ -3,6 +3,8 @@
 <key id="name" for="node" attr.name="name" attr.type="string"/>
 <key id="rank" for="node" attr.name="rank" attr.type="double"/>
 <key id="url" for="node" attr.name="url" attr.type="string"/>
+<key id="labels" for="node" attr.name="labels" attr.type="string"/>
+<key id="label" for="node" attr.name="label" attr.type="string"/>
 <graph id="G" edgedefault="directed">
 <node id="n12480" labels=":Page"><data key="labels">:Page</data><data key="name">The Anatomy of a Decision: An Introduction to Decision Making</data><data key="url">https://fs.blog/2009/07/an-introduction-to-decision-making/</data><data key="rank">3.145842</data></node>
 <node id="n12481" labels=":Page"><data key="labels">:Page</data><data key="url">https://fs.blog/2009/07/mental-model-supply-and-demand/</data><data key="rank">0.3711275</data><data key="name">Mental Model: Supply and Demand</data></node>
