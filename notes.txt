@@ -84,7 +84,11 @@ MERGE (p1)-[:links]->(p2)
 # https://neo4j.com/docs/graph-algorithms/current/algorithms/page-rank/
 
 # update
-CALL algo.pageRank('Page', 'links', {iterations:20, dampingFactor:0.85, write: true, writeProperty:"rank"})
+CALL algo.pageRank('Page', 'links', {iterations:20, dampingFactor:0.85, write:true, writeProperty:'rank'})
+CALL algo.louvain('Page', 'links', {write:true, writeProperty:'group'})
+CALL algo.scc('Page','links', {write:true,partitionProperty:'partition'})
+CALL algo.labelPropagation('Page', 'links','OUTGOING',  {iterations:10,partitionProperty:'label', write:true})
+CALL algo.triangleCount('Page', 'links',  {concurrency:4, write:true, writeProperty:'triangles',clusteringCoefficientProperty:'coefficient'})
 
 ############################# 
 # Query
@@ -105,6 +109,48 @@ RETURN n.name, n.url, n.rank
 ORDER BY n.rank DESC
 LIMIT 25
 
+# query Community louvain
+MATCH (n:Page) 
+RETURN DISTINCT n.group
+
+MATCH (n:Page) 
+RETURN n.name, n.url, n.group, n.rank
+ORDER BY n.group ASC, n.rank DESC
+LIMIT 25
+
+MATCH (n:Page) 
+WHERE  ANY (x IN n.group WHERE x = 58)
+RETURN n.name, n.url, n.group, n.rank
+ORDER BY n.group DESC, n.rank DESC
+LIMIT 100
+
+# query Community Strong Connected Component
+MATCH (n:Page) 
+RETURN DISTINCT n.partition
+
+MATCH (n:Page) 
+RETURN n.name, n.url, n.partition, n.rank
+ORDER BY n.partition ASC, n.rank DESC
+LIMIT 25
+
+# query Community Label
+MATCH (n:Page) 
+RETURN DISTINCT n.label
+
+MATCH (n:Page) 
+RETURN n.name, n.url, n.label, n.rank
+ORDER BY n.label ASC, n.rank DESC
+LIMIT 25
+
+# query Community triangleCount
+MATCH (n:Page) 
+RETURN DISTINCT n.triangles
+
+MATCH (n:Page) 
+RETURN n.name, n.url, n.triangles, n.coefficient
+ORDER BY n.triangles ASC, n.coefficient DESC, n.rank DESC
+LIMIT 100
+
 # query tat ca page di ra tu mot not
 MATCH (:Page {url: 'https://fs.blog/2018/04/first-principles/'})-[r]-(p:Page)
 RETURN p 
@@ -115,4 +161,28 @@ LIMIT 25
 ############################# 
 # Neo4j Export
 #############################
+
+CALL apoc.export.graphml.all('/tmp/complete-graph.graphml', {useTypes:true, storeNodeIds:true})
+CALL apoc.export.csv.all('/tmp/complete-graph.csv', {useTypes:true, storeNodeIds:true})
+
 MATCH (p1:Page)-[:links]->(p2:Page) RETURN p1.url, p1.name, p1.rank, p2.url
+
+
+MATCH (a)-[r]->(b)
+WITH collect(
+    {
+        id: id(a),
+        name: a.name,        
+        url: a.url,
+        value: a.rank,
+        group: a.label
+    }
+) AS links
+WITH collect(
+    {
+        source: id(a),
+        target: id(b),        
+    }
+) AS links
+
+RETURN edges
