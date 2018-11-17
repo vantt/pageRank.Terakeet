@@ -4,6 +4,21 @@ from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.utils.url import urljoin_rfc
 from farnamgraph.items import FarnamgraphItem
 
+#https://fs.blog/best-articles/
+#https://fs.blog/mental-models/
+#https://fs.blog/popular/
+#https://fs.blog/prime/
+#https://fs.blog/privacy-policy/
+#https://fs.blog/random-articles/
+#https://fs.blog/blog
+#https://fs.blog/reading/
+#https://fs.blog/smart-decisions/
+#https://fs.blog/principles/
+#https://fs.blog/newsletter
+#https://fs.blog/principles
+#https://fs.blog/podcast
+#https://fs.blog/membership
+
 class GraphspiderSpider(CrawlSpider):
     name = 'graphspider'
     allowed_domains = ['fs.blog']
