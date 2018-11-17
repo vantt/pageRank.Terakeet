@@ -157,6 +157,10 @@ RETURN p
 ORDER BY p.rank DESC
 LIMIT 25
 
+# find dump nodes
+MATCH (a)-[:WRITES]->(b)
+RETURN b, COLLECT(a) as authors
+ORDER BY SIZE(authors) DESC LIMIT 10
 
 ############################# 
 # Neo4j Export
