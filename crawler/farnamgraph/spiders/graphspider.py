@@ -3,9 +3,14 @@ import os
 import re
 import binascii
 from scrapy.selector import HtmlXPathSelector
-from scrapy.contrib.linkextractors.sgml import SgmlLinkExtractor
+from scrapy.linkextractors import LinkExtractor
 from scrapy.contrib.spiders import CrawlSpider, Rule
-from urllib.parse import urljoin
+
+try:
+    from urllib.parse import urljoin
+except ImportError:
+     from urlparse import urljoin
+
 from farnamgraph.items import FarnamgraphItem
 
 
@@ -38,11 +43,20 @@ class GraphspiderSpider(CrawlSpider):
 
     rules = (
         Rule(
-            SgmlLinkExtractor(allow=(r'/',), deny=(r'/tag', r'/category', r'/search', r'/blog')),
+            LinkExtractor(allow=(r'/',), deny=(r'/tag', r'/category', r'/search', r'/blog')),
             callback='parse_item',  follow=True
         ),
     )
 
+     def __init__(self, category=None, *args, **kwargs):
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        self.category = dir_path        
+        print(dir_path)
+        print(os.getcwd())
+        quit()
+
+        super(GraphspiderSpider, self).__init__(*args, **kwargs)
+        
     def parse_item(self, response):
         hxs = HtmlXPathSelector(response)
         i = FarnamgraphItem()
@@ -57,14 +71,5 @@ class GraphspiderSpider(CrawlSpider):
                     llinks.append(urljoin(response.url, href))
 
         i['links'] = llinks
+
         return i
-
-    def __init__(self, *args, **kwargs):
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        print(dir_path);
-        print(os.getcwd());
-
-        sys.exit;
-        self.category = dir_path        
-
-        super(GraphspiderSpider, self).__init__(*args, **kwargs)
