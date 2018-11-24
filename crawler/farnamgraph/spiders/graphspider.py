@@ -62,7 +62,15 @@ class GraphspiderSpider(CrawlSpider):
 
     rules = (
         Rule(
-            LinkExtractor(allow=(r"/",), deny=(r"/tag", r"/category", r"/search", r"/blog")),
+            LinkExtractor(
+                allow=(r"/",), 
+                deny=(
+                    r"/tag", 
+                    r"/category", 
+                    r"/search", 
+                    r"/blog"
+                )
+            ),
             callback="parse_item",  follow=True
         ),
     )
