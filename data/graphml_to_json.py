@@ -1,20 +1,40 @@
+#!/usr/bin/env python
+
+import sys
+import argparse
 import networkx as nx
-import json
+import community
 from networkx.readwrite import json_graph
-import re
 
-G=nx.read_graphml('complete-graph.graphml')
-data = json_graph.node_link_data(G)
 
-for node in data['nodes']:
-  str=node['id']
-  node['id']=[int(s) for s in str.split("n") if s.isdigit()][0]
+def graphmltojson(graphfile, outfile):
+	"""
+	Converts GraphML file to json while adding communities/modularity groups
+	using python-louvain. JSON output is usable with D3 force layout.
+	Usage:
+	>>> python convert.py -i mygraph.graphml -o outfile.json
+	"""
+	
+	G = nx.read_graphml(graphfile)	
 
-for link in data['links']:
-  str=link['source']
-  link['source']=[int(s) for s in str.split("n") if s.isdigit()][0]
-  str=link['target']
-  link['target']=[int(s) for s in str.split("n") if s.isdigit()][0]
+	#finds best community using louvain
+	partition = community.best_partition(G)
 
-with open('complete-graph.json', 'w') as f:
-  json.dump(data, f, indent=4)
+	#adds partition/community number as attribute named 'modularitygroup'
+	for n,d in G.nodes_iter(data=True):
+		d['modularitygroup'] = partition[n]
+
+	node_link = json_graph.node_link_data(G)
+	json = json_graph.dumps(node_link)
+	
+	# Write to file
+	fo = open(outfile, "w")
+	fo.write(json);
+	fo.close()
+
+if __name__ == '__main__':
+	parser = argparse.ArgumentParser(description='Convert from GraphML to json. ')
+	parser.add_argument('-i','--input', help='Input file name (graphml)',required=True)
+	parser.add_argument('-o','--output', help='Output file name/path',required=True)
+	args = parser.parse_args()
+	graphmltojson(args.input, args.output)
