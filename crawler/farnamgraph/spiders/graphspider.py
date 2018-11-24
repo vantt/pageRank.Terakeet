@@ -2,9 +2,10 @@ import sys
 import os 
 import re
 import binascii
-from scrapy.selector import HtmlXPathSelector
+from scrapy.selector import Selector
+from scrapy.http import HtmlResponse
 from scrapy.linkextractors import LinkExtractor
-from scrapy.contrib.spiders import CrawlSpider, Rule
+from scrapy.spiders import CrawlSpider, Rule
 
 try:
     from urllib.parse import urljoin
@@ -17,10 +18,6 @@ from farnamgraph.items import FarnamgraphItem
 class GraphspiderSpider(CrawlSpider):
 
     name = 'graphspider'
-
-    customs_settings = {
-        'FEED_URI' : 'file://%(storage_path)s/.json'
-    }
 
     allowed_domains = ['fs.blog']
     start_urls = ['https://fs.blog/blog']
@@ -47,27 +44,18 @@ class GraphspiderSpider(CrawlSpider):
             callback='parse_item',  follow=True
         ),
     )
-
-     def __init__(self, category=None, *args, **kwargs):
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        self.category = dir_path        
-        print(dir_path)
-        print(os.getcwd())
-        quit()
-
-        super(GraphspiderSpider, self).__init__(*args, **kwargs)
         
     def parse_item(self, response):
-        hxs = HtmlXPathSelector(response)
+        hxs = Selector(response)
         i = FarnamgraphItem()
         i['url'] = response.url.strip()
-        i['title'] = hxs.select('//h1/text()').extract()[0].strip()
+        i['title'] = hxs.xpath('//h1/text()').extract()[0].strip()
         llinks = []
 
-        for anchor in hxs.select('//a[@href]'):
-            href = anchor.select('@href').extract()[0].strip()
+        for anchor in hxs.xpath('//a[@href]'):
+            href = anchor.xpath('@href').extract()[0].strip()
             if not href.lower().startswith("javascript"):
-                if not any(regex.match(href) for regex in self.ignore_urls):
+                if not any(re.match(regex, href) for regex in self.ignore_urls):
                     llinks.append(urljoin(response.url, href))
 
         i['links'] = llinks
