@@ -40,6 +40,7 @@ class GraphspiderSpider(CrawlSpider):
         r"^\/reading.*",
         r"^\/search.*",
         r"^\/smart-decisions.*",
+        r"^\/speaking.*",
         r"^\/sponsorship.*",
         r"^\/tags.*",
         r"^https:\/\/fs\.blog\/prime.*",
@@ -70,8 +71,10 @@ class GraphspiderSpider(CrawlSpider):
         for anchor in hxs.xpath("//a[@href]"):
             href = anchor.xpath("@href").extract()[0].strip()
             if not href.lower().startswith("javascript"):
+                print ('in', href)
                 if not any(re.match(regex, href) for regex in self.ignore_urls):
                     llinks.append(urljoin(response.url, href))
+                    print('out', href)
 
         i["links"] = llinks
 
