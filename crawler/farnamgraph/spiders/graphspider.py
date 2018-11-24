@@ -1,7 +1,7 @@
 import sys
 import os 
 import re
-import libcrc
+import binascii
 from scrapy.selector import HtmlXPathSelector
 from scrapy.contrib.linkextractors.sgml import SgmlLinkExtractor
 from scrapy.contrib.spiders import CrawlSpider, Rule
@@ -62,6 +62,8 @@ class GraphspiderSpider(CrawlSpider):
     def __init__(self, *args, **kwargs):
         dir_path = os.path.dirname(os.path.realpath(__file__))
         print(dir_path);
+        print(os.getcwd());
+
         sys.exit;
         self.category = dir_path        
 
