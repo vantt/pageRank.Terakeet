@@ -1,31 +1,39 @@
+import re
+import libcrc
 from scrapy.selector import HtmlXPathSelector
 from scrapy.contrib.linkextractors.sgml import SgmlLinkExtractor
 from scrapy.contrib.spiders import CrawlSpider, Rule
-from scrapy.utils.url import urljoin_rfc
+from urllib.parse import urljoin
 from farnamgraph.items import FarnamgraphItem
 
-#https://fs.blog/best-articles/
-#https://fs.blog/mental-models/
-#https://fs.blog/popular/
-#https://fs.blog/prime/
-#https://fs.blog/privacy-policy/
-#https://fs.blog/random-articles/
-#https://fs.blog/blog
-#https://fs.blog/reading/
-#https://fs.blog/smart-decisions/
-#https://fs.blog/principles/
-#https://fs.blog/newsletter
-#https://fs.blog/principles
-#https://fs.blog/podcast
-#https://fs.blog/membership
 
 class GraphspiderSpider(CrawlSpider):
+
     name = 'graphspider'
     allowed_domains = ['fs.blog']
     start_urls = ['https://fs.blog/blog']
+    ignore_urls = [
+        r'/best-articles',
+        r'/mental-models',
+        r'/popular',
+        r'/prime',
+        r'/privacy-policy',
+        r'/random-articles',
+        r'/blog',
+        r'/reading',
+        r'/smart-decisions',
+        r'/principles',
+        r'/newsletter',
+        r'/principles',
+        r'/podcast',
+        r'/membership',
+    ]
 
     rules = (
-        Rule(SgmlLinkExtractor(allow=(r'/',), deny=(r'/tag',r'/category',r'/search',r'/blog')), callback='parse_item', follow=True),
+        Rule(
+            SgmlLinkExtractor(allow=(r'/',), deny=(r'/tag', r'/category', r'/search', r'/blog')),
+            callback='parse_item',  follow=True
+        ),
     )
 
     def parse_item(self, response):
@@ -33,10 +41,13 @@ class GraphspiderSpider(CrawlSpider):
         i = FarnamgraphItem()
         i['url'] = response.url.strip()
         i['title'] = hxs.select('//h1/text()').extract()[0].strip()
-        llinks=[]
+        llinks = []
+
         for anchor in hxs.select('//a[@href]'):
-            href=anchor.select('@href').extract()[0].strip()
+            href = anchor.select('@href').extract()[0].strip()
             if not href.lower().startswith("javascript"):
-                llinks.append(urljoin_rfc(response.url,href))
+                if not any(regex.match(href) for regex in self.ignore_urls):
+                    llinks.append(urljoin(response.url, href))
+
         i['links'] = llinks
         return i
