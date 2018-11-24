@@ -1,3 +1,5 @@
+import sys
+import os 
 import re
 import libcrc
 from scrapy.selector import HtmlXPathSelector
@@ -10,6 +12,11 @@ from farnamgraph.items import FarnamgraphItem
 class GraphspiderSpider(CrawlSpider):
 
     name = 'graphspider'
+
+    customs_settings = {
+        'FEED_URI' : 'file://%(storage_path)s/.json'
+    }
+
     allowed_domains = ['fs.blog']
     start_urls = ['https://fs.blog/blog']
     ignore_urls = [
@@ -51,3 +58,11 @@ class GraphspiderSpider(CrawlSpider):
 
         i['links'] = llinks
         return i
+
+    def __init__(self, *args, **kwargs):
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        print(dir_path);
+        sys.exit;
+        self.category = dir_path        
+
+        super(GraphspiderSpider, self).__init__(*args, **kwargs)
