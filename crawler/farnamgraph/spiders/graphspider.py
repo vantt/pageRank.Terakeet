@@ -22,6 +22,7 @@ class GraphspiderSpider(CrawlSpider):
     allowed_domains = ["fs.blog"]
     start_urls = ["https://fs.blog/blog"]
     ignore_urls = [
+        r"^\#$",
         r"^\/$",
         r"^\/about.*",
         r"^\/best-articles.*",
@@ -43,15 +44,20 @@ class GraphspiderSpider(CrawlSpider):
         r"^\/speaking.*",
         r"^\/sponsorship.*",
         r"^\/tags.*",
-        r"^https:\/\/fs\.blog\/prime.*",
-        r"^https:\/\/twitter\.com\/farnamstreet.*",
-        r"^https:\/\/www\.youtube\.com\/user\/farnamstreetblog.*",
-        r"^https:\/\/www\.instagram\.com\/farnamstreet.*",
-        r"^https:\/\/www\.facebook\.com\/FarnamStreet.*",
-        r"^https:\/\/syruspartners\.com.*",
-        r"^https:\/\/pressable\.com.*",
         r"^https:\/\/cottonbureau\.com\/products\/listen-and-learn-crewneck-tee.*",
+        r"^https:\/\/fs\.blog\/blog.*",
+        r"^https:\/\/fs\.blog\/category.*",
+        r"^https:\/\/fs\.blog\/prime.*",
+        r"^https:\/\/fs\.blog\/tag.*",
+        r"^https:\/\/pressable\.com.*",
         r"^https:\/\/rethinkworkshops\.com.*",
+        r"^https:\/\/syruspartners\.com.*",
+        r"^https:\/\/twitter\.com\/farnamstreet.*",
+        r"^https:\/\/www\.facebook\.com\/FarnamStreet.*",
+        r"^https:\/\/www\.instagram\.com\/farnamstreet.*",
+        r"^https:\/\/www\.youtube\.com\/user\/farnamstreetblog.*",
+        r"^smart-decisions.*",
+        r"^https:\/\/www\.farnamstreetblog\.com\/Royce17Logo.*",
     ]
 
     rules = (
@@ -70,11 +76,10 @@ class GraphspiderSpider(CrawlSpider):
 
         for anchor in hxs.xpath("//a[@href]"):
             href = anchor.xpath("@href").extract()[0].strip()
-            if not href.lower().startswith("javascript"):
-                print ('in', href)
+            if not href.lower().startswith("javascript"):                
                 if not any(re.match(regex, href) for regex in self.ignore_urls):
-                    llinks.append(urljoin(response.url, href))
-                    print('out', href)
+                    llinks.append(urljoin(response.url, href))                    
+                    print('keep', href)
 
         i["links"] = llinks
 
