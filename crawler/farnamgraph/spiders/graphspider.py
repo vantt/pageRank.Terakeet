@@ -1,6 +1,7 @@
 import sys
 import os 
 import re
+import zlib
 import binascii
 from scrapy.selector import Selector
 from scrapy.http import HtmlResponse
@@ -44,8 +45,8 @@ class GraphspiderSpider(CrawlSpider):
         r"^\/speaking.*",
         r"^\/sponsorship.*",
         r"^\/tags.*",
-        r"^\/reading\/",
-        r"^\/the-knowledge-project\/",
+        r"^\/reading\/$",
+        r"^\/the-knowledge-project\/$",
         r"^https:\/\/cottonbureau\.com\/products\/listen-and-learn-crewneck-tee.*",
         r"^https:\/\/fs\.blog\/blog.*",
         r"^https:\/\/fs\.blog\/category.*",
@@ -60,8 +61,8 @@ class GraphspiderSpider(CrawlSpider):
         r"^https:\/\/www\.youtube\.com\/user\/farnamstreetblog.*",
         r"^smart-decisions.*",
         r"^https:\/\/www\.farnamstreetblog\.com\/Royce17Logo.*",
-        r"^https:\/\/fs\.blog\/the-knowledge-project\/",
-        r"^https:\/\/fs\.blog\/reading\/",
+        r"^https:\/\/fs\.blog\/the-knowledge-project\/$",
+        r"^https:\/\/fs\.blog\/reading\/$",
     ]
 
     rules = (
@@ -81,18 +82,22 @@ class GraphspiderSpider(CrawlSpider):
         
     def parse_item(self, response):
         hxs = Selector(response)
-        i = FarnamgraphItem()
-        i["url"] = response.url.strip()
-        i["title"] = hxs.xpath("//h1/text()").extract()[0].strip()
-        llinks = []
+        item = FarnamgraphItem()
+        
+        item["url"] = response.url.strip()
+        item["id"] = zlib.crc32(item["url"]) & 0xffffffff
+        item["title"] = hxs.xpath("//h1/text()").extract()[0].strip()
+        llinks = {}
 
         for anchor in hxs.xpath("//a[@href]"):
             href = anchor.xpath("@href").extract()[0].strip()
             if not href.lower().startswith("javascript"):                
                 if not any(re.match(regex, href) for regex in self.ignore_urls):
-                    llinks.append(urljoin(response.url, href))                    
+                    link = urljoin(response.url, href)
+                    id = zlib.crc32(link) & 0xffffffff
+                    llinks[id] = link
                     print('keep', href)
 
-        i["links"] = llinks
+        item["links"] = llinks
 
-        return i
+        return item

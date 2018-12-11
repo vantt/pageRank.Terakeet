@@ -8,6 +8,7 @@
 from scrapy.item import Item, Field
 
 class FarnamgraphItem(Item):
+    id=Field()
     url=Field()
     title=Field()
     links=Field()
