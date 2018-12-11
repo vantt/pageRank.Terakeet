@@ -5,7 +5,7 @@
 # JSON Jq
 #############################
 # create pages.csv
-jq -r '[.id, .url, .title] | @csv' sitegraph.json > pages.csv
+jq -r '[.id, .title, .url] | @csv' sitegraph.json > pages.csv
 
 
 # create links.csv
@@ -14,6 +14,8 @@ jq -r '[.id, .url, .title] | @csv' sitegraph.json > pages.csv
 # step3: convert json {from, to} to array [from, to]
 # step4: convert to csv
 jq -r '{from: .url, to: .links[]} | select(.from != .to) | [.from, .to] | @csv' sitegraph.json > page_links.csv
+
+jq -r '{from: .id, to: .links | keys [] } | select(.from != .to) | [.from, .to] | @csv' sitegraph.json > page_links.csv
 
 
 #############################
