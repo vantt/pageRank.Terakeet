@@ -44,6 +44,8 @@ class GraphspiderSpider(CrawlSpider):
         r"^\/speaking.*",
         r"^\/sponsorship.*",
         r"^\/tags.*",
+        r"^\/reading\/",
+        r"^\/the-knowledge-project\/",
         r"^https:\/\/cottonbureau\.com\/products\/listen-and-learn-crewneck-tee.*",
         r"^https:\/\/fs\.blog\/blog.*",
         r"^https:\/\/fs\.blog\/category.*",
@@ -58,6 +60,8 @@ class GraphspiderSpider(CrawlSpider):
         r"^https:\/\/www\.youtube\.com\/user\/farnamstreetblog.*",
         r"^smart-decisions.*",
         r"^https:\/\/www\.farnamstreetblog\.com\/Royce17Logo.*",
+        r"^https:\/\/fs\.blog\/the-knowledge-project\/",
+        r"^https:\/\/fs\.blog\/reading\/",
     ]
 
     rules = (
