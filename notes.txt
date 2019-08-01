@@ -19,6 +19,15 @@ jq -r '{from: .id, to: .links | keys [] } | select(.from != .to) | [.from, .to] 
 
 
 #############################
+# How to Run Spider
+#############################
+# Install Scrapy
+$ sudo pip install scrapy
+
+# Run the Spider
+$ runspider.sh
+
+#############################
 # Scrapy
 #############################
 
