@@ -1,0 +1,4 @@
+# pip install -r requirements.txt
+scrapy==1.7.2
+json-lines==0.5
+networkx==2.2

@@ -1,5 +1,5 @@
 import sys
-import os 
+import os
 import re
 import zlib
 import binascii
@@ -11,13 +11,12 @@ from scrapy.spiders import CrawlSpider, Rule
 try:
     from urllib.parse import urljoin
 except ImportError:
-     from urlparse import urljoin
+    from urlparse import urljoin
 
 from farnamgraph.items import FarnamgraphItem
 
 
 class GraphspiderSpider(CrawlSpider):
-
     name = "graphspider"
 
     allowed_domains = ["fs.blog"]
@@ -63,41 +62,42 @@ class GraphspiderSpider(CrawlSpider):
         r"^https:\/\/www\.farnamstreetblog\.com\/Royce17Logo.*",
         r"^https:\/\/fs\.blog\/the-knowledge-project\/$",
         r"^https:\/\/fs\.blog\/reading\/$",
+        r"^https:\/\/\itunes.apple.com\/$",
     ]
 
     rules = (
         Rule(
             LinkExtractor(
-                allow=(r"/",), 
+                allow=(r"/",),
                 deny=(
-                    r"/tag", 
-                    r"/category", 
-                    r"/search", 
+                    r"/tag",
+                    r"/category",
+                    r"/search",
                     r"/blog"
                 )
             ),
-            callback="parse_item",  follow=True
+            callback="parse_item", follow=True
         ),
     )
-        
+
     def parse_item(self, response):
         hxs = Selector(response)
         item = FarnamgraphItem()
-        
+
         item["url"] = response.url.strip()
-        item["id"] = zlib.crc32(item["url"]) & 0xffffffff
+        item["id"] = zlib.crc32(bytes(item["url"], 'utf-8')) & 0xffffffff
         item["title"] = hxs.xpath("//h1/text()").extract()[0].strip()
-        llinks = {}
+        links = {}
 
         for anchor in hxs.xpath("//a[@href]"):
             href = anchor.xpath("@href").extract()[0].strip()
-            if not href.lower().startswith("javascript"):                
+            if not href.lower().startswith("javascript"):
                 if not any(re.match(regex, href) for regex in self.ignore_urls):
-                    link = urljoin(response.url, href)
-                    id = zlib.crc32(link) & 0xffffffff
-                    llinks[id] = link
+                    link_url = urljoin(response.url, href)
+                    link_id = zlib.crc32(bytes(link_url, 'utf-8')) & 0xffffffff
+                    links[link_id] = link_url
                     print('keep', href)
 
-        item["links"] = llinks
+        item["links"] = links
 
         return item

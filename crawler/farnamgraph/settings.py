@@ -14,6 +14,8 @@ BOT_NAME = 'farnamgraph'
 SPIDER_MODULES = ['farnamgraph.spiders']
 NEWSPIDER_MODULE = 'farnamgraph.spiders'
 
+FEED_FORMAT="jsonlines"
+FEED_URI="data/fsBlog.jsonl"
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'farnamgraph (+http://www.yourdomain.com)'
@@ -88,5 +90,4 @@ ROBOTSTXT_OBEY = True
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
-FEED_FORMAT="jsonlines"
-FEED_URI="file:///tmp/sitecrawl.json"
+
