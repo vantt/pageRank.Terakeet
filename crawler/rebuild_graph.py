@@ -25,17 +25,17 @@ with open(input_file, 'rb') as f:
             if 'description' not in G.nodes[node_id]:
                 G.nodes[node_id]['description'] = item['title'] + ' ' + item['url']
         else:
-            G.add_node(node_id, title=item['title'], url=item['url'], description=item['title'] + ' ' + item['url'])
+            G.add_node(node_id, label=node_id, title=item['title'], url=item['url'], description=item['title'] + ' ' + item['url'])
 
         # create Links
         for to_id, to_url in item['links'].items():
             to_id = str(to_id)
 
             if to_id in G.nodes:
-                if not G.nodes[to_id]['url']:
+                if 'url' not in G.nodes[to_id]:
                     G.nodes[to_id]['url'] = to_url
             else:
-                G.add_node(to_id, url=to_url)
+                G.add_node(to_id, label=to_id, url=to_url)
 
             G.add_edge(node_id, to_id)
 
@@ -60,9 +60,9 @@ json.dump(json_graph.node_link_data(G), open(output_dir + '/fsBlog.json', 'w'), 
 # write to CSV files
 with open(output_dir + '/fsBlog_pages.csv', 'w') as csvfile:
     writer = csv.writer(csvfile)
-    writer.writerow(['label', 'title', 'url'])
+    writer.writerow(['id', 'label', 'title', 'url'])
     for node, data in G.nodes(data=True):
-        writer.writerow([node, data['title'], data['url']])
+        writer.writerow([node, data['label'], data['title'], data['url']])
 
 with open(output_dir + '/fsBlog_pages_links.csv', 'w') as csvfile:
     writer = csv.writer(csvfile)
