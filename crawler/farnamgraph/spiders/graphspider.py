@@ -21,36 +21,38 @@ class GraphspiderSpider(CrawlSpider):
 
     allowed_domains = ["fs.blog"]
     start_urls = ["https://fs.blog/blog"]
+    keep_urls = [
+        r"\/\d{4}\/\d{2}\/[^\/]+\/$"
+    ]
+
     ignore_urls = [
-        r"^\#$",
-        r"^\/$",
-        r"^\/about.*",
-        r"^\/best-articles.*",
-        r"^\/blog.*",
-        r"^\/category.*",
-        r"^\/feed.*",
-        r"^\/membership.*",
-        r"^\/mental-models.*",
-        r"^\/newsletter.*",
-        r"^\/podcast.*",
-        r"^\/popular.*",
-        r"^\/prime.*",
-        r"^\/principles.*",
-        r"^\/privacy-policy.*",
-        r"^\/random-articles.*",
-        r"^\/reading.*",
-        r"^\/search.*",
-        r"^\/smart-decisions.*",
-        r"^\/speaking.*",
-        r"^\/sponsorship.*",
-        r"^\/tags.*",
-        r"^\/reading\/$",
-        r"^\/the-knowledge-project\/$",
+        r"\#$",
+        r"\/$",
+        r"\/about.*",
+        r"\/best-articles.*",
+        r"\/blog.*",
+        r"\/category.*",
+        r"\/tags.*",
+        r"\/tag.*",
+        r"\/feed.*",
+        r"\/membership.*",
+        r"\/mental-models.*",
+        r"\/newsletter.*",
+        r"\/podcast.*",
+        r"\/popular.*",
+        r"\/prime.*",
+        r"\/principles.*",
+        r"\/privacy-policy.*",
+        r"\/random-articles.*",
+        r"\/reading.*",
+        r"\/search.*",
+        r"\/smart-decisions.*",
+        r"\/speaking.*",
+        r"\/sponsorship.*",
+        r"\/reading\/$",
+        r"\/the-knowledge-project\/$",
+        r"smart-decisions.*",
         r"^https:\/\/cottonbureau\.com\/products\/listen-and-learn-crewneck-tee.*",
-        r"^https:\/\/fs\.blog\/blog.*",
-        r"^https:\/\/fs\.blog\/category.*",
-        r"^https:\/\/fs\.blog\/prime.*",
-        r"^https:\/\/fs\.blog\/tag.*",
         r"^https:\/\/pressable\.com.*",
         r"^https:\/\/rethinkworkshops\.com.*",
         r"^https:\/\/syruspartners\.com.*",
@@ -58,10 +60,7 @@ class GraphspiderSpider(CrawlSpider):
         r"^https:\/\/www\.facebook\.com\/FarnamStreet.*",
         r"^https:\/\/www\.instagram\.com\/farnamstreet.*",
         r"^https:\/\/www\.youtube\.com\/user\/farnamstreetblog.*",
-        r"^smart-decisions.*",
         r"^https:\/\/www\.farnamstreetblog\.com\/Royce17Logo.*",
-        r"^https:\/\/fs\.blog\/the-knowledge-project\/$",
-        r"^https:\/\/fs\.blog\/reading\/$",
         r"^https:\/\/\itunes.apple.com\/$",
     ]
 
@@ -82,22 +81,36 @@ class GraphspiderSpider(CrawlSpider):
 
     def parse_item(self, response):
         hxs = Selector(response)
-        item = FarnamgraphItem()
+        page_url = response.url.strip()
 
-        item["url"] = response.url.strip()
-        item["id"] = zlib.crc32(bytes(item["url"], 'utf-8')) & 0xffffffff
-        item["title"] = hxs.xpath("//h1/text()").extract()[0].strip()
-        links = {}
+        if self.is_keep_url(page_url):
+            item = FarnamgraphItem()
 
-        for anchor in hxs.xpath("//a[@href]"):
-            href = anchor.xpath("@href").extract()[0].strip()
-            if not href.lower().startswith("javascript"):
-                if not any(re.match(regex, href) for regex in self.ignore_urls):
-                    link_url = urljoin(response.url, href)
-                    link_id = zlib.crc32(bytes(link_url, 'utf-8')) & 0xffffffff
-                    links[link_id] = link_url
-                    print('keep', href)
+            item["url"] = page_url
+            item["id"] = zlib.crc32(bytes(page_url, 'utf-8')) & 0xffffffff
+            item["title"] = hxs.xpath("//title/text()").extract()[0].strip()
+            links = {}
 
-        item["links"] = links
+            for anchor in hxs.xpath("//a[@href]"):
+                href = anchor.xpath("@href").extract()[0].strip()
+                if not href.lower().startswith("javascript"):
+                    if self.is_keep_url(href):
+                        link_url = urljoin(page_url, href)
+                        link_id = zlib.crc32(bytes(link_url, 'utf-8')) & 0xffffffff
+                        links[link_id] = link_url
 
-        return item
+            item["links"] = links
+
+            return item
+
+        return None
+
+    def is_keep_url(self, url):
+        return any(re.search(regex, url) for regex in self.keep_urls)
+        #
+        # if not is_keep:
+        #     is_keep = not any(re.search(regex, url) for regex in self.ignore_urls)
+
+
+
+
