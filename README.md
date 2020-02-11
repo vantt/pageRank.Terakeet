@@ -5,7 +5,9 @@ FarnamStreet is the first website that introduce to me the concept of **multidis
 To maximize the value of this blog, I need to figure out the highest valueable articles to read first. And more, I need to analyse the relationship between concepts and pages so that I can explore the world of super-thinking easier.  
     
 This tool will crawl the [fs.blog](fs.blog) website and build a graph between all pages, so that you could use any graphy-analysis tool of your choice to find most valuable knowledge.  
-    
+
+Result Demo: https://kumu.io/vantt/fsblog-farnamstreet-graph#fsblog-farnamstreet/by-pagerank
+
 # How to run the crawler    
  ## First install Scrapy 
 
