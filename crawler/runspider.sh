@@ -1,1 +1,1 @@
-scrapy crawl graphspider & 
+scrapy crawl blog &

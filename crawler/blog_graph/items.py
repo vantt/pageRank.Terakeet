@@ -7,7 +7,7 @@
 
 from scrapy.item import Item, Field
 
-class FarnamgraphItem(Item):
+class BlogGraphItem(Item):
     id=Field()
     url=Field()
     title=Field()

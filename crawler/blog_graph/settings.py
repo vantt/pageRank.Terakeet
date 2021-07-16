@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Scrapy settings for farnamgraph project
+# Scrapy settings for blog_graph project
 #
 # For simplicity, this file contains only settings considered important or
 # commonly used. You can find more settings consulting the documentation:
@@ -9,16 +9,16 @@
 #     https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = 'farnamgraph'
+BOT_NAME = 'scrapybot'
 
-SPIDER_MODULES = ['farnamgraph.spiders']
-NEWSPIDER_MODULE = 'farnamgraph.spiders'
+SPIDER_MODULES = ['blog_graph.spiders']
+NEWSPIDER_MODULE = 'blog_graph.spiders'
 
-FEED_FORMAT="jsonlines"
-FEED_URI="data/fsBlog.jsonl"
+FEED_FORMAT = "jsonlines"
+FEED_URI = "data/blog.jsonl"
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'farnamgraph (+http://www.yourdomain.com)'
+#USER_AGENT = 'blog_graph (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
@@ -49,13 +49,13 @@ ROBOTSTXT_OBEY = True
 # Enable or disable spider middlewares
 # See https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 #SPIDER_MIDDLEWARES = {
-#    'farnamgraph.middlewares.FarnamgraphSpiderMiddleware': 543,
+#    'blog_graph.middlewares.FarnamgraphSpiderMiddleware': 543,
 #}
 
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 #DOWNLOADER_MIDDLEWARES = {
-#    'farnamgraph.middlewares.FarnamgraphDownloaderMiddleware': 543,
+#    'blog_graph.middlewares.FarnamgraphDownloaderMiddleware': 543,
 #}
 
 # Enable or disable extensions
@@ -67,7 +67,7 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 #ITEM_PIPELINES = {
-#    'farnamgraph.pipelines.FarnamgraphPipeline': 300,
+#    'blog_graph.pipelines.FarnamgraphPipeline': 300,
 #}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
